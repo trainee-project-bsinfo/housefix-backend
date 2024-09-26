@@ -1,0 +1,33 @@
+version: '3'
+
+volumes:
+  data:
+
+services:
+  db:
+    image: mariadb
+    container_name: mariadb
+    env_file: .env
+    volumes:
+      - data:/var/lib/mysql
+    networks:
+      - backend
+    hostname: mariadb
+    ports:
+      - "3306:3306"
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    container_name: backend
+    networks:
+      - backend
+    hostname: backend
+    ports:
+      - "8080:8080"
+
+networks:
+  backend:
+    driver: bridge
