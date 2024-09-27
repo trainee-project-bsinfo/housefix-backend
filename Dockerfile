@@ -3,6 +3,7 @@ FROM maven
 
 COPY . .
 
+RUN chmod +x wait-for-it.sh
 RUN mvn clean package
 
-ENTRYPOINT ["java","-jar","target/housefix.jar"]
+ENTRYPOINT ["./wait-for-it.sh", "mariadb:3306", "--", "java","-jar","target/housefix.jar"]

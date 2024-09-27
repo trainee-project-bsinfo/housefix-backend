@@ -22,6 +22,7 @@ services:
     depends_on:
       - db
     container_name: backend
+    env_file: .env
     networks:
       - backend
     hostname: backend
