@@ -48,7 +48,7 @@ public class DatabaseConnection implements IDatabaseConnection {
                 "gender ENUM('MALE', 'FEMALE', 'OTHER')" +
                 ");";
 
-        String createReadingTable = "CREATE TABLE IF NOT EXISTS IReading (" +
+        String createReadingTable = "CREATE TABLE IF NOT EXISTS reading (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +
                 "comment TEXT, " +
                 "dateOfReading DATE NOT NULL, " +
@@ -57,7 +57,7 @@ public class DatabaseConnection implements IDatabaseConnection {
                 "meterId VARCHAR(255), " +
                 "substitute BOOLEAN, " +
                 "customer_id INT, " +
-                "FOREIGN KEY (customer_id) REFERENCES ICustomer(customer_id) ON DELETE SET NULL" +
+                "FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL" +
                 ");";
 
         try (Statement stmt = conn.createStatement()) {
