@@ -1,9 +1,10 @@
 package eu.bsinfo.db;
 
-import java.util.Properties;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public interface IDatabaseConnection {
-    IDatabaseConnection openConnection(Properties properties);
+    Connection openConnection() throws SQLException;
     void createAllTables();
     void truncateAllTables();
     void removeAllTables();
