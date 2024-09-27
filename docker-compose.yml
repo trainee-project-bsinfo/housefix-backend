@@ -1,8 +1,5 @@
 version: '3'
 
-volumes:
-  data:
-
 services:
   db:
     image: mariadb
@@ -15,13 +12,17 @@ services:
     hostname: mariadb
     ports:
       - "3306:3306"
+
   backend:
     build:
       context: .
+      args:
+        - DB_HOSTNAME_PORT=mariadb:3306
       dockerfile: Dockerfile
     depends_on:
       - db
     container_name: backend
+    env_file: .env
     networks:
       - backend
     hostname: backend
@@ -31,3 +32,6 @@ services:
 networks:
   backend:
     driver: bridge
+
+volumes:
+  data:
