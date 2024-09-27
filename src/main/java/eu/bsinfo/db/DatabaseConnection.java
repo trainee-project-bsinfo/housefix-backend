@@ -1,15 +1,41 @@
 package eu.bsinfo.db;
 
+import eu.bsinfo.manager.ConfigManager;
+import eu.bsinfo.manager.ConfigProperties;
+
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DatabaseConnection implements IDatabaseConnection{
-    Connection connection;
+public class DatabaseConnection implements IDatabaseConnection {
+    private final String db;
+    private final String user;
+    private final String password;
+
+    private Connection conn;
+
+    public DatabaseConnection(String db, String user, String password) {
+        this.db = db;
+        this.user = user;
+        this.password = password;
+    }
 
     @Override
-    public Connection openConnection() {
-        return connection;
+    public Connection openConnection() throws SQLException {
+        String baseUrl;
+        try {
+            baseUrl = ConfigManager.getProperty(ConfigProperties.DB_BASE_URI);
+        } catch (IOException e) {
+            throw new SQLException(e);
+        }
+        conn = DriverManager.getConnection(baseUrl + db, user, password);
+        return conn;
+    }
+
+    public Connection getConnection() {
+        return conn;
     }
 
     @Override
@@ -34,7 +60,7 @@ public class DatabaseConnection implements IDatabaseConnection{
                 "FOREIGN KEY (customer_id) REFERENCES ICustomer(customer_id) ON DELETE SET NULL" +
                 ");";
 
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = conn.createStatement()) {
             stmt.execute(createCustomersTable);
             stmt.execute(createReadingTable);
             System.out.println("Tabellen 'ICustomer' und 'IReading' erfolgreich erstellt.");
@@ -50,7 +76,7 @@ public class DatabaseConnection implements IDatabaseConnection{
         String truncateReadingTable = "TRUNCATE TABLE IReading;";
         String truncateCustomersTable = "TRUNCATE TABLE ICustomer;";
 
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = conn.createStatement()) {
             stmt.execute(truncateReadingTable);
             stmt.execute(truncateCustomersTable);
             System.out.println("Tabellen 'ICustomer' und 'IReading' erfolgreich geleert.");
@@ -65,7 +91,7 @@ public class DatabaseConnection implements IDatabaseConnection{
         String dropReadingTable = "DROP TABLE IF EXISTS IReading;";
         String dropCustomersTable = "DROP TABLE IF EXISTS ICustomer;";
 
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = conn.createStatement()) {
             stmt.execute(dropReadingTable);
             stmt.execute(dropCustomersTable);
             System.out.println("Tabellen 'ICustomer' und 'IReading' erfolgreich entfernt.");
@@ -76,9 +102,9 @@ public class DatabaseConnection implements IDatabaseConnection{
 
     @Override
     public void closeConnection() {
-        if (connection != null) {
+        if (conn != null) {
             try {
-                connection.close();
+                conn.close();
             } catch (SQLException e) {
                 System.err.println("Fehler beim Schließen der Datenbankverbindung: " + e.getMessage());
             }
