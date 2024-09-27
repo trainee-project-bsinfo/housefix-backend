@@ -5,10 +5,10 @@ import java.time.LocalDate;
 public interface ICustomer extends IID {
     void setFirstName(String firstName);
     void setLastName(String lastName);
-    void setBirtDate(LocalDate birtDate);
+    void setBirthDate(LocalDate birthDate);
     void setGender(Gender gender);
     String  getFirstName();
     String  getLastName();
-    LocalDate  getBirtDate();
+    LocalDate  getBirthDate();
     Gender getGender();
 }
