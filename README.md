@@ -4,7 +4,7 @@ ___
 
 ## Environment Variables
 Create .env file in root dir of project and fill it out
-> see [.env.example](./.env.example)
+> see [.env.example](./.env)
 > - MYSQL_ROOT_PASSWORD
 > - MYSQL_DATABASE
 > - MYSQL_USER
