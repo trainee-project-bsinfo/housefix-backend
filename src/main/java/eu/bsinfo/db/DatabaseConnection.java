@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 
 public class DatabaseConnection implements IDatabaseConnection {
     private final String db;
@@ -40,46 +41,68 @@ public class DatabaseConnection implements IDatabaseConnection {
 
     @Override
     public void createAllTables() {
-        String createCustomersTable = "CREATE TABLE IF NOT EXISTS customers (" +
+        StringBuilder genderEnums = new StringBuilder();
+        String[] genderNames = Arrays.stream(Gender.values()).map(Gender::toString).toArray(String[]::new);
+        for (int i = 0; i < genderNames.length; i++) {
+            String genderName = genderNames[i];
+            genderEnums.append("'").append(genderName).append("'");
+            if (i < genderNames.length - 1) {
+                genderEnums.append(", ");
+            }
+        }
+
+        String createCustomersTable = "CREATE TABLE IF NOT EXISTS "+Tables.CUSTOMERS+" (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +
                 "firstName VARCHAR(255) NOT NULL, " +
                 "lastName VARCHAR(255) NOT NULL, " +
                 "birthDate DATE, " +
-                "gender ENUM('MALE', 'FEMALE', 'OTHER')" +
+                "gender ENUM("+genderEnums+")" +
                 ");";
 
-        String createReadingTable = "CREATE TABLE IF NOT EXISTS reading (" +
+        StringBuilder kindOfMeterEnums = new StringBuilder();
+        String[] kindOfMeterNames = Arrays.stream(KindOfMeter.values()).map(KindOfMeter::toString).toArray(String[]::new);
+        for (int i = 0; i < kindOfMeterNames.length; i++) {
+            String kindOfMeterName = kindOfMeterNames[i];
+            kindOfMeterEnums.append("'").append(kindOfMeterName).append("'");
+            if (i < kindOfMeterNames.length - 1) {
+                kindOfMeterEnums.append(", ");
+            }
+        }
+
+        String createReadingTable = "CREATE TABLE IF NOT EXISTS "+Tables.READING+" (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +
                 "comment TEXT, " +
                 "dateOfReading DATE NOT NULL, " +
-                "kindOfMeter ENUM('ELECTRICITY', 'WATER', 'GAS', 'HEATING'), " +
+                "kindOfMeter ENUM("+kindOfMeterEnums+")," +
                 "meterCount DOUBLE NOT NULL, " +
                 "meterId VARCHAR(255), " +
                 "substitute BOOLEAN, " +
                 "customer_id INT, " +
-                "FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL" +
+                "CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES "+Tables.CUSTOMERS+"(id) ON DELETE SET NULL" +
                 ");";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createCustomersTable);
             stmt.execute(createReadingTable);
-            System.out.println("Tabellen 'ICustomer' und 'IReading' erfolgreich erstellt.");
+            System.out.println("Tabellen erfolgreich erstellt.");
         } catch (SQLException e) {
             System.err.println("Fehler beim Erstellen der Tabellen: " + e.getMessage());
         }
-
     }
 
     @Override
     public void truncateAllTables() {
-        // SQL-Befehle zum Leeren der Tabellen ICustomer und IReading
-        String truncateReadingTable = "TRUNCATE TABLE IReading;";
-        String truncateCustomersTable = "TRUNCATE TABLE ICustomer;";
+        String disableFKChecks = "SET FOREIGN_KEY_CHECKS = 0;";
+        String enableFKChecks = "SET FOREIGN_KEY_CHECKS = 1;";
+        String truncateReadingTable = "TRUNCATE TABLE "+Tables.CUSTOMERS+";";
+        String truncateCustomersTable = "TRUNCATE TABLE "+Tables.READING+";";
 
         try (Statement stmt = conn.createStatement()) {
+            stmt.execute(disableFKChecks);
             stmt.execute(truncateReadingTable);
             stmt.execute(truncateCustomersTable);
-            System.out.println("Tabellen 'ICustomer' und 'IReading' erfolgreich geleert.");
+            stmt.execute(enableFKChecks);
+            System.out.println("Tabellen erfolgreich geleert.");
         } catch (SQLException e) {
             System.err.println("Fehler beim Leeren der Tabellen: " + e.getMessage());
         }
@@ -87,14 +110,13 @@ public class DatabaseConnection implements IDatabaseConnection {
 
     @Override
     public void removeAllTables() {
-        // SQL-Befehle zum Löschen der Tabellen ICustomer und IReading
-        String dropReadingTable = "DROP TABLE IF EXISTS IReading;";
-        String dropCustomersTable = "DROP TABLE IF EXISTS ICustomer;";
+        String dropFK = "ALTER TABLE "+Tables.READING+" DROP FOREIGN KEY fk_customer;";
+        String dropTables = "DROP TABLE IF EXISTS "+Tables.CUSTOMERS+","+Tables.READING+";";
 
         try (Statement stmt = conn.createStatement()) {
-            stmt.execute(dropReadingTable);
-            stmt.execute(dropCustomersTable);
-            System.out.println("Tabellen 'ICustomer' und 'IReading' erfolgreich entfernt.");
+            stmt.execute(dropFK);
+            stmt.execute(dropTables);
+            System.out.println("Tabellen erfolgreich entfernt.");
         } catch (SQLException e) {
             System.err.println("Fehler beim Entfernen der Tabellen: " + e.getMessage());
         }

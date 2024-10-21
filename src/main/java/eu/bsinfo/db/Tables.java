@@ -1,13 +1,11 @@
 package eu.bsinfo.db;
 
-public enum Gender {
-    D("DIVERS"),
-    F("FEMALE"),
-    M("MALE"),
-    U("UNSPECIFIED");
+public enum Tables {
+    CUSTOMERS("customers"),
+    READING("reading");
 
     private final String name;
-    Gender(String name) {
+    Tables(String name) {
         this.name = name;
     }
     public String toString() {
