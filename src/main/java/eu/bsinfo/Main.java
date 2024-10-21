@@ -10,8 +10,12 @@ public class Main {
         String password = System.getenv("MYSQL_PASSWORD");
 
         try {
-            new DatabaseConnection("housefix", user, password)
-                    .openConnection();
+            DatabaseConnection conn = new DatabaseConnection("housefix", user, password);
+            conn.openConnection();
+            conn.createAllTables();
+            conn.truncateAllTables();
+            conn.removeAllTables();
+            conn.closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
