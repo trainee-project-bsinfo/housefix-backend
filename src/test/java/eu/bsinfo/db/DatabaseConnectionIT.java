@@ -1,11 +1,11 @@
-package eu.bsinfo;
+package eu.bsinfo.db;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MainTest {
+public class DatabaseConnectionIT {
     @Test
-    public void test() {
+    public void testConnection() {
         Assert.assertTrue(true);
     }
 }
