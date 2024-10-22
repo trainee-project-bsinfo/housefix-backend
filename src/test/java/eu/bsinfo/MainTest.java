@@ -1,11 +1,11 @@
 package eu.bsinfo;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class MainTest {
     @Test
     public void test() {
-        Assert.assertTrue(true);
+        Assertions.assertTrue(true);
     }
 }
