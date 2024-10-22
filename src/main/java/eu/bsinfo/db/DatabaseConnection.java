@@ -25,6 +25,9 @@ public class DatabaseConnection implements IDatabaseConnection {
 
     @Override
     public Connection openConnection() throws SQLException {
+        if (conn != null) {
+            return conn;
+        }
         String baseUrl;
         try {
             baseUrl = ConfigManager.getProperty(ConfigProperties.DB_BASE_URI);

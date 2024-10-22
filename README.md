@@ -18,11 +18,11 @@ Command to Stop: `docker-compose down`
 
 ## Start Service locally without DB
 - Add the .env file in your Run Configuration
-- Correct the [configuration.properties](src/main/resources/config.properties) file
+- Correct the main [config.properties](src/main/resources/config.properties) file
 
 ## Tests
 `mvn test` -> runs unit and integration tests
-> Note: The DB_BASE_URI from [configuration.properties](src/main/resources/config.properties) needs to be correct and a DB on that hostname and port must be running for the integration tests!
+> Note: test [config.properties](src/test/resources/config.properties) needs to be correctly filled out and a DB on that hostname and port must be running for the integration tests!
 
 ## Clear Docker
 Run: `bash clear-docker.sh`
