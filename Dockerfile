@@ -20,4 +20,4 @@ ENV SCRIPT_PATH=$SCRIPT_PATH
 ENV DB_H_P=$DB_HOSTNAME_PORT
 ENV JAR_PATH=$JAR_PATH
 
-ENTRYPOINT ["sh", "-c", "${SCRIPT_PATH} ${DB_H_P} -- java -jar ${JAR_PATH}"]
+ENTRYPOINT ["sh", "-c", "${SCRIPT_PATH} ${DB_H_P} -t 60 && java -jar ${JAR_PATH}"]

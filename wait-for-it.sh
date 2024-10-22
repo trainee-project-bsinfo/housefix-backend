@@ -21,11 +21,6 @@ USAGE
 
 wait_for()
 {
-    : 'if [[ $WAITFORIT_TIMEOUT -gt 0 ]]; then
-        echoerr "waiting $WAITFORIT_TIMEOUT seconds for $WAITFORIT_HOST:$WAITFORIT_PORT"
-    else
-        echoerr "waiting for $WAITFORIT_HOST:$WAITFORIT_PORT without a timeout"
-    fi'
     WAITFORIT_start_ts=$(date +%s)
     while :
     do
