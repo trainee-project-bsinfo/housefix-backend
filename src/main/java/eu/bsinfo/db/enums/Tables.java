@@ -1,4 +1,4 @@
-package eu.bsinfo.db;
+package eu.bsinfo.db.enums;
 
 public enum Tables {
     CUSTOMERS("customers"),

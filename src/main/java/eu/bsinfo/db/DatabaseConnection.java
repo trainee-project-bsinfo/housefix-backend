@@ -1,5 +1,8 @@
 package eu.bsinfo.db;
 
+import eu.bsinfo.db.enums.Gender;
+import eu.bsinfo.db.enums.KindOfMeter;
+import eu.bsinfo.db.enums.Tables;
 import eu.bsinfo.manager.ConfigManager;
 import eu.bsinfo.manager.ConfigProperties;
 
@@ -24,18 +27,18 @@ public class DatabaseConnection implements IDatabaseConnection {
     }
 
     @Override
-    public Connection openConnection() throws SQLException {
+    public DatabaseConnection openConnection() throws SQLException {
         if (conn != null) {
-            return conn;
+            return this;
         }
-        String baseUrl;
+        String baseUri;
         try {
-            baseUrl = ConfigManager.getProperty(ConfigProperties.DB_BASE_URI);
+            baseUri = ConfigManager.getProperty(ConfigProperties.DB_BASE_URI);
         } catch (IOException e) {
             throw new SQLException(e);
         }
-        conn = DriverManager.getConnection(baseUrl + db, user, password);
-        return conn;
+        conn = DriverManager.getConnection(baseUri + db, user, password);
+        return this;
     }
 
     public Connection getConnection() {
@@ -54,8 +57,8 @@ public class DatabaseConnection implements IDatabaseConnection {
             }
         }
 
-        String createCustomersTable = "CREATE TABLE IF NOT EXISTS "+Tables.CUSTOMERS+" (" +
-                "id INT PRIMARY KEY AUTO_INCREMENT, " +
+        String createCustomersTable = "CREATE TABLE IF NOT EXISTS "+ Tables.CUSTOMERS+" (" +
+                "id BINARY(16) PRIMARY KEY, " +
                 "firstName VARCHAR(255) NOT NULL, " +
                 "lastName VARCHAR(255) NOT NULL, " +
                 "birthDate DATE, " +
@@ -73,14 +76,14 @@ public class DatabaseConnection implements IDatabaseConnection {
         }
 
         String createReadingTable = "CREATE TABLE IF NOT EXISTS "+Tables.READING+" (" +
-                "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                "id BINARY(16) PRIMARY KEY, " +
                 "comment TEXT, " +
                 "dateOfReading DATE NOT NULL, " +
                 "kindOfMeter ENUM("+kindOfMeterEnums+")," +
                 "meterCount DOUBLE NOT NULL, " +
                 "meterId VARCHAR(255), " +
                 "substitute BOOLEAN, " +
-                "customer_id INT, " +
+                "customer_id BINARY(16), " +
                 "CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES "+Tables.CUSTOMERS+"(id) ON DELETE SET NULL" +
                 ");";
 

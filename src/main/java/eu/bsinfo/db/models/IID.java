@@ -1,4 +1,4 @@
-package eu.bsinfo.db;
+package eu.bsinfo.db.models;
 
 import java.util.UUID;
 

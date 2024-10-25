@@ -1,10 +1,10 @@
-package eu.bsinfo.db;
+package eu.bsinfo.db.enums;
 
 public enum Gender {
-    D("DIVERS"),
-    F("FEMALE"),
-    M("MALE"),
-    U("UNSPECIFIED");
+    DIVERS("DIVERS"),
+    FEMALE("FEMALE"),
+    MALE("MALE"),
+    UNSPECIFIED("UNSPECIFIED");
 
     private final String name;
     Gender(String name) {

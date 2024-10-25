@@ -21,7 +21,7 @@ Command to Stop: `docker-compose down`
 - Correct the main [config.properties](src/main/resources/config.properties) file
 
 ## Tests
-`mvn test` -> runs unit and integration tests
+`mvn clean test` -> runs unit and integration tests
 > Note: test [config.properties](src/test/resources/config.properties) needs to be correctly filled out and a DB on that hostname and port must be running for the integration tests!
 
 ## Clear Docker
