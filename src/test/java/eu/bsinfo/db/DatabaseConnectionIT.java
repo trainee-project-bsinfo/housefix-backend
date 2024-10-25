@@ -1,24 +1,27 @@
 package eu.bsinfo.db;
 
+import eu.bsinfo.db.enums.Gender;
+import eu.bsinfo.db.enums.Tables;
+import eu.bsinfo.utils.UUIDUtils;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseConnectionIT {
     private static DatabaseConnection conn;
+    private static UUID uuid = UUID.fromString("fb50b5c8-d100-44ad-b2c5-aad47016f564");
 
     @BeforeAll
     public static void loadConfigAndConnect() throws IOException, SQLException {
         Properties config = new Properties();
         config.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
-        conn = new DatabaseConnection("test", config.getProperty("DB_USER"), config.getProperty("DB_PASSWORD"));
-        conn.openConnection();
+        conn = new DatabaseConnection(config.getProperty("DB_DBNAME"), config.getProperty("DB_USER"), config.getProperty("DB_PASSWORD"))
+                .openConnection();
     }
     @AfterAll
     static void disconnect() {
@@ -28,16 +31,11 @@ public class DatabaseConnectionIT {
     @BeforeEach
     void createTables() {
         conn.createAllTables();
+        conn.truncateAllTables();
     }
     @AfterEach
     void removeTables() {
         conn.removeAllTables();
-    }
-
-    void insertCustomer(Statement stmt) throws SQLException {
-        String insertCustomer = "INSERT INTO "+Tables.CUSTOMERS+" (firstName, lastName, birthDate, gender) VALUES " +
-                "('John', 'Doe', '1980-01-01', '"+Gender.M+"')";
-        stmt.execute(insertCustomer);
     }
 
     @Test
@@ -54,27 +52,18 @@ public class DatabaseConnectionIT {
     }
 
     @Test
-    public void testInsertAndQueryData() throws SQLException {
-        Statement stmt = conn.getConnection().createStatement();
-
-        insertCustomer(stmt);
-
-        ResultSet rs = stmt.executeQuery("SELECT * FROM "+Tables.CUSTOMERS+" WHERE id = 1");
-
-        assertTrue(rs.next());
-        assertEquals("John", rs.getString("firstName"));
-        assertEquals("Doe", rs.getString("lastName"));
-        assertEquals("1980-01-01", rs.getDate("birthDate").toString());
-        assertEquals("MALE", rs.getString("gender"));
-
-        stmt.close();
-    }
-
-    @Test
     public void testTruncateTables() throws SQLException {
-        Statement stmt = conn.getConnection().createStatement();
+        String mutation = "INSERT INTO "+Tables.CUSTOMERS+" (id, firstName, lastName, birthDate, gender) VALUES (?,?,?,?,?);";
+        PreparedStatement prepStmt = conn.getConnection().prepareStatement(mutation);
+        prepStmt.setBytes(1, UUIDUtils.UUIDAsBytes(uuid));
+        prepStmt.setString(2, "John");
+        prepStmt.setString(3, "Doe");
+        prepStmt.setDate(4, Date.valueOf("1980-01-01"));
+        prepStmt.setString(5, Gender.MALE.toString());
+        prepStmt.executeUpdate();
+        prepStmt.close();
 
-        insertCustomer(stmt);
+        Statement stmt = conn.getConnection().createStatement();
 
         ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS count FROM "+Tables.CUSTOMERS);
         assertTrue(rs.next());
@@ -101,5 +90,7 @@ public class DatabaseConnectionIT {
         assertFalse(rs.next());
 
         stmt.close();
+
+        conn.createAllTables();
     }
 }

@@ -1,4 +1,4 @@
-package eu.bsinfo.db;
+package eu.bsinfo.db.enums;
 
 public enum KindOfMeter {
     HEATER("HEATER"),

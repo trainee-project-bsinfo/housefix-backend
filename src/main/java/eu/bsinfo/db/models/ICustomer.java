@@ -1,4 +1,6 @@
-package eu.bsinfo.db;
+package eu.bsinfo.db.models;
+
+import eu.bsinfo.db.enums.Gender;
 
 import java.time.LocalDate;
 
