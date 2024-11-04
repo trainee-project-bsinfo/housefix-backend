@@ -89,13 +89,13 @@ public class SQLStatement {
     }
 
     @Nullable
-    public Reading getReadingByCustomerId(UUID customerId) throws SQLException {
+    public List<Reading> getReadingsByCustomerId(UUID customerId) throws SQLException {
         String query = "SELECT * FROM "+Tables.READING+" WHERE customer_id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(query);
         stmt.setBytes(1, UUIDUtils.UUIDAsBytes(customerId));
         ResultSet rs = stmt.executeQuery();
         stmt.close();
-        return ObjectMapper.getReading(rs);
+        return ObjectMapper.getReadings(rs);
     }
 
     public List<Reading> getReadings() throws SQLException {
