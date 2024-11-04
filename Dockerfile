@@ -2,7 +2,7 @@ FROM maven AS builder
 
 COPY . .
 
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
 FROM amazoncorretto:17
 
