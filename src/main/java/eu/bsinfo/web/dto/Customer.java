@@ -1,9 +1,12 @@
-package eu.bsinfo.db.dto;
+package eu.bsinfo.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bsinfo.db.enums.Gender;
 import eu.bsinfo.db.models.ICustomer;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Customer implements ICustomer {
@@ -13,13 +16,19 @@ public class Customer implements ICustomer {
     private Gender gender;
     private LocalDate birthDate;
 
-    public Customer(UUID id, String firstName, String lastName, Gender gender, LocalDate birthDate) {
-        this.id = id;
+    @JsonCreator
+    public Customer(@JsonProperty("id") UUID id,
+                    @JsonProperty("firstName") String firstName,
+                    @JsonProperty("lastName") String lastName,
+                    @JsonProperty("gender") Gender gender,
+                    @JsonProperty("birthDate") LocalDate birthDate) {
+        this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.birthDate = birthDate;
     }
+
     public Customer(String firstName, String lastName, Gender gender, LocalDate birthDate) {
         this.id = UUID.randomUUID();
         this.firstName = firstName;

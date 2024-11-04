@@ -1,9 +1,10 @@
 package eu.bsinfo.db;
 
-import eu.bsinfo.db.dto.Customer;
-import eu.bsinfo.db.dto.Reading;
+import eu.bsinfo.web.dto.Customer;
+import eu.bsinfo.web.dto.Reading;
 import eu.bsinfo.db.enums.Tables;
 import eu.bsinfo.utils.UUIDUtils;
+import jakarta.ws.rs.NotFoundException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.sql.*;
@@ -67,10 +68,10 @@ public class SQLStatement {
         return rowsAffected;
     }
 
-    public int deleteCustomer(Customer customer) throws SQLException {
+    public int deleteCustomer(UUID customerId) throws SQLException {
         String mutation = "DELETE FROM "+Tables.CUSTOMERS+" WHERE id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(mutation);
-        stmt.setBytes(1, UUIDUtils.UUIDAsBytes(customer.getid()));
+        stmt.setBytes(1, UUIDUtils.UUIDAsBytes(customerId));
 
         int rowsAffected = stmt.executeUpdate();
         stmt.close();
@@ -106,9 +107,9 @@ public class SQLStatement {
         return ObjectMapper.getReadings(rs);
     }
 
-    public void createReading(Reading reading) throws SQLException {
+    public void createReading(Reading reading) throws SQLException, NotFoundException {
         if (getCustomer(reading.getCustomerId()) == null) {
-            throw new SQLException("Customer not found");
+            throw new NotFoundException("Customer not found");
         }
 
         String mutation = "INSERT INTO "+Tables.READING+" (id, comment, dateOfReading, kindOfMeter, meterCount, meterId, substitute, customer_id) VALUES (?,?,?,?,?,?,?,?);";
@@ -148,10 +149,10 @@ public class SQLStatement {
         return rowsAffected;
     }
 
-    public int deleteReading(Reading reading) throws SQLException {
+    public int deleteReading(UUID readingId) throws SQLException {
         String mutation = "DELETE FROM "+Tables.READING+" WHERE id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(mutation);
-        stmt.setBytes(1, UUIDUtils.UUIDAsBytes(reading.getid()));
+        stmt.setBytes(1, UUIDUtils.UUIDAsBytes(readingId));
 
         int rowsAffected = stmt.executeUpdate();
         stmt.close();

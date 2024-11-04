@@ -1,9 +1,12 @@
-package eu.bsinfo.db.dto;
+package eu.bsinfo.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bsinfo.db.enums.KindOfMeter;
 import eu.bsinfo.db.models.IReading;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Reading implements IReading {
@@ -16,8 +19,16 @@ public class Reading implements IReading {
     private String meterId;
     private Boolean substitute;
 
-    public Reading(UUID id, KindOfMeter kindOfMeter, LocalDate dateOfReading, UUID customerId, String comment, double meterCount, String meterId, Boolean substitute) {
-        this.id = id;
+    @JsonCreator
+    public Reading(@JsonProperty("id") UUID id,
+                   @JsonProperty("kindOfMeter") KindOfMeter kindOfMeter,
+                   @JsonProperty("dateOfReading") LocalDate dateOfReading,
+                   @JsonProperty("customerId") UUID customerId,
+                   @JsonProperty("comment") String comment,
+                   @JsonProperty("meterCount") double meterCount,
+                   @JsonProperty("meterId") String meterId,
+                   @JsonProperty("substitute") Boolean substitute) {
+        this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
         this.kindOfMeter = kindOfMeter;
         this.dateOfReading = dateOfReading;
         this.customerId = customerId;

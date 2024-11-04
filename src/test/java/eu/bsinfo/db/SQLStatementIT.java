@@ -1,7 +1,7 @@
 package eu.bsinfo.db;
 
-import eu.bsinfo.db.dto.Customer;
-import eu.bsinfo.db.dto.Reading;
+import eu.bsinfo.web.dto.Customer;
+import eu.bsinfo.web.dto.Reading;
 import eu.bsinfo.db.enums.Gender;
 import eu.bsinfo.db.enums.KindOfMeter;
 import org.assertj.core.groups.Tuple;
@@ -92,7 +92,7 @@ public class SQLStatementIT {
     public void testDeleteCustomer() throws SQLException {
         Customer c = createCustomer();
 
-        int affectedRows = sqlStmt.deleteCustomer(c);
+        int affectedRows = sqlStmt.deleteCustomer(c.getid());
         Assertions.assertEquals(1, affectedRows);
 
         Customer deletedC = sqlStmt.getCustomer(c.getid());
@@ -145,7 +145,7 @@ public class SQLStatementIT {
     public void testDeleteReading() throws SQLException {
         Reading r = createReading();
 
-        int affectedRows = sqlStmt.deleteReading(r);
+        int affectedRows = sqlStmt.deleteReading(r.getid());
         Assertions.assertEquals(1, affectedRows);
 
         Reading deletedR = sqlStmt.getReading(r.getid());

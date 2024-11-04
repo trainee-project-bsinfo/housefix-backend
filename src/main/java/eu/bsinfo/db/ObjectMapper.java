@@ -1,7 +1,7 @@
 package eu.bsinfo.db;
 
-import eu.bsinfo.db.dto.Customer;
-import eu.bsinfo.db.dto.Reading;
+import eu.bsinfo.web.dto.Customer;
+import eu.bsinfo.web.dto.Reading;
 import eu.bsinfo.db.enums.Gender;
 import eu.bsinfo.db.enums.KindOfMeter;
 import eu.bsinfo.utils.UUIDUtils;
