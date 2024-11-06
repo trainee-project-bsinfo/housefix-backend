@@ -2,13 +2,13 @@ package eu.bsinfo.db.models;
 
 
 import eu.bsinfo.db.enums.KindOfMeter;
+import eu.bsinfo.web.dto.Customer;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 public interface IReading extends IID {
     void setComment(String comment);
-    void setCustomerId(UUID customerId);
+    void setCustomer(Customer customer);
     void setDateOfReading(LocalDate dateOfReading);
     void setKindOfMeter(KindOfMeter kindOfMeter);
     void setMeterCount(Double meterCount);
@@ -16,7 +16,7 @@ public interface IReading extends IID {
     void setSubstitute(Boolean substitute);
 
     String getComment();
-    UUID getCustomerId();
+    Customer getCustomer();
     LocalDate getDateOfReading();
     KindOfMeter getKindOfMeter();
     Double getMeterCount();
