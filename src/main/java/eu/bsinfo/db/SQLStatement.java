@@ -1,18 +1,18 @@
 package eu.bsinfo.db;
 
-import eu.bsinfo.web.dto.Customer;
-import eu.bsinfo.web.dto.Reading;
 import eu.bsinfo.db.enums.Tables;
 import eu.bsinfo.utils.UUIDUtils;
-import jakarta.ws.rs.NotFoundException;
+import eu.bsinfo.web.dto.Customer;
+import eu.bsinfo.web.dto.Reading;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.rmi.NoSuchObjectException;
 import java.sql.*;
 import java.util.List;
 import java.util.UUID;
 
 public class SQLStatement {
-    private DatabaseConnection dbConn;
+    private final DatabaseConnection dbConn;
 
     public SQLStatement(DatabaseConnection dbConn) {
         this.dbConn = dbConn;
@@ -86,17 +86,16 @@ public class SQLStatement {
         stmt.setBytes(1, UUIDUtils.UUIDAsBytes(id));
         ResultSet rs = stmt.executeQuery();
         stmt.close();
-        return ObjectMapper.getReading(rs);
+        return ObjectMapper.getReading(rs, this);
     }
 
-    @Nullable
     public List<Reading> getReadingsByCustomerId(UUID customerId) throws SQLException {
         String query = "SELECT * FROM "+Tables.READING+" WHERE customer_id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(query);
         stmt.setBytes(1, UUIDUtils.UUIDAsBytes(customerId));
         ResultSet rs = stmt.executeQuery();
         stmt.close();
-        return ObjectMapper.getReadings(rs);
+        return ObjectMapper.getReadings(rs, this);
     }
 
     public List<Reading> getReadings() throws SQLException {
@@ -104,12 +103,12 @@ public class SQLStatement {
         Statement stmt = dbConn.getConnection().createStatement();
         ResultSet rs = stmt.executeQuery(query);
         stmt.close();
-        return ObjectMapper.getReadings(rs);
+        return ObjectMapper.getReadings(rs, this);
     }
 
-    public void createReading(Reading reading) throws SQLException, NotFoundException {
-        if (getCustomer(reading.getCustomerId()) == null) {
-            throw new NotFoundException("Customer not found");
+    public void createReading(Reading reading) throws SQLException, NoSuchObjectException {
+        if (getCustomer(reading.getCustomer().getid()) == null) {
+            throw new NoSuchObjectException("Customer not found");
         }
 
         String mutation = "INSERT INTO "+Tables.READING+" (id, comment, dateOfReading, kindOfMeter, meterCount, meterId, substitute, customer_id) VALUES (?,?,?,?,?,?,?,?);";
@@ -121,7 +120,7 @@ public class SQLStatement {
         stmt.setDouble(5, reading.getMeterCount());
         stmt.setString(6, reading.getMeterId());
         stmt.setBoolean(7, reading.getSubstitute());
-        stmt.setBytes(8, UUIDUtils.UUIDAsBytes(reading.getCustomerId()));
+        stmt.setBytes(8, UUIDUtils.UUIDAsBytes(reading.getCustomer().getid()));
 
         int rowsAffected = stmt.executeUpdate();
         if (rowsAffected == 0) {
@@ -140,7 +139,12 @@ public class SQLStatement {
         stmt.setDouble(4, reading.getMeterCount());
         stmt.setString(5, reading.getMeterId());
         stmt.setBoolean(6, reading.getSubstitute());
-        stmt.setBytes(7, UUIDUtils.UUIDAsBytes(reading.getCustomerId()));
+
+        byte[] customerId = null;
+        if (reading.getCustomer() != null || reading.getCustomer().getid() != null) {
+            customerId = UUIDUtils.UUIDAsBytes(reading.getCustomer().getid());
+        }
+        stmt.setBytes(7, customerId);
         stmt.setBytes(8, UUIDUtils.UUIDAsBytes(reading.getid()));
 
         int rowsAffected = stmt.executeUpdate();

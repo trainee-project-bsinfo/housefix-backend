@@ -17,7 +17,7 @@ Command to Stop: `docker-compose down`
 > see [Dockerfile](./Dockerfile)
 
 ## Start Service locally without DB
-- Add the .env file in your Run Configuration
+- Add the .env file in your Run Configuration (or source the env file manually)
 - Correct the main [config.properties](src/main/resources/config.properties) file
 
 ## Tests

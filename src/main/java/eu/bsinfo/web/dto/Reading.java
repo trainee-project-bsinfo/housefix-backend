@@ -13,7 +13,7 @@ public class Reading implements IReading {
     private UUID id;
     private KindOfMeter kindOfMeter;
     private LocalDate dateOfReading;
-    private UUID customerId;
+    private Customer customer;
     private String comment;
     private double meterCount;
     private String meterId;
@@ -23,26 +23,29 @@ public class Reading implements IReading {
     public Reading(@JsonProperty("id") UUID id,
                    @JsonProperty("kindOfMeter") KindOfMeter kindOfMeter,
                    @JsonProperty("dateOfReading") LocalDate dateOfReading,
-                   @JsonProperty("customerId") UUID customerId,
+                   @JsonProperty("customer") Customer customer,
                    @JsonProperty("comment") String comment,
-                   @JsonProperty("meterCount") double meterCount,
+                   @JsonProperty("meterCount") Double meterCount,
                    @JsonProperty("meterId") String meterId,
                    @JsonProperty("substitute") Boolean substitute) {
+        if (kindOfMeter == null || dateOfReading == null || comment == null || meterCount == null || meterId == null || substitute == null) {
+            throw new IllegalArgumentException("Reading is missing required fields");
+        }
         this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
         this.kindOfMeter = kindOfMeter;
         this.dateOfReading = dateOfReading;
-        this.customerId = customerId;
+        this.customer = customer;
         this.comment = comment;
         this.meterCount = meterCount;
         this.meterId = meterId;
         this.substitute = substitute;
     }
 
-    public Reading(KindOfMeter kindOfMeter, LocalDate dateOfReading, UUID customerId, String comment, double meterCount, String meterId, Boolean substitute) {
+    public Reading(KindOfMeter kindOfMeter, LocalDate dateOfReading, Customer customer, String comment, double meterCount, String meterId, Boolean substitute) {
         this.id = UUID.randomUUID();
         this.kindOfMeter = kindOfMeter;
         this.dateOfReading = dateOfReading;
-        this.customerId = customerId;
+        this.customer = customer;
         this.comment = comment;
         this.meterCount = meterCount;
         this.meterId = meterId;
@@ -55,8 +58,8 @@ public class Reading implements IReading {
     }
 
     @Override
-    public void setCustomerId(UUID customerId) {
-        this.customerId = customerId;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     @Override
@@ -90,8 +93,8 @@ public class Reading implements IReading {
     }
 
     @Override
-    public UUID getCustomerId() {
-        return customerId;
+    public Customer getCustomer() {
+        return customer;
     }
 
     @Override

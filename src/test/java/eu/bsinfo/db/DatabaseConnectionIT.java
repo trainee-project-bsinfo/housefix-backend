@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseConnectionIT {
     private static DatabaseConnection conn;
-    private static UUID uuid = UUID.fromString("fb50b5c8-d100-44ad-b2c5-aad47016f564");
+    private static final UUID uuid = UUID.fromString("fb50b5c8-d100-44ad-b2c5-aad47016f564");
 
     @BeforeAll
     public static void loadConfigAndConnect() throws IOException, SQLException {

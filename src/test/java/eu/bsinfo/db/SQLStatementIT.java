@@ -8,6 +8,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.rmi.NoSuchObjectException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -50,12 +51,12 @@ public class SQLStatementIT {
         return c;
     }
 
-    Reading createReading() throws SQLException {
+    Reading createReading() throws SQLException, NoSuchObjectException {
         Customer c = createCustomer();
         
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse("2024-08-20", formatter);
-        Reading r = new Reading(KindOfMeter.ELECTRICITY, date, c.getid(), "No comment", 12000.23, "ELECTRICITY_1", false);
+        Reading r = new Reading(KindOfMeter.ELECTRICITY, date, c, "No comment", 12000.23, "ELECTRICITY_1", false);
 
         sqlStmt.createReading(r);
 
@@ -117,7 +118,7 @@ public class SQLStatementIT {
     }
 
     @Test
-    public void testCreateReading() throws SQLException {
+    public void testCreateReading() throws SQLException, NoSuchObjectException {
         Reading r = createReading();
 
         Reading createdR = sqlStmt.getReading(r.getid());
@@ -127,7 +128,7 @@ public class SQLStatementIT {
     }
 
     @Test
-    public void testUpdateReading() throws SQLException {
+    public void testUpdateReading() throws SQLException, NoSuchObjectException {
         Reading r = createReading();
 
         r.setKindOfMeter(KindOfMeter.WATER);
@@ -142,7 +143,7 @@ public class SQLStatementIT {
     }
 
     @Test
-    public void testDeleteReading() throws SQLException {
+    public void testDeleteReading() throws SQLException, NoSuchObjectException {
         Reading r = createReading();
 
         int affectedRows = sqlStmt.deleteReading(r.getid());
@@ -153,7 +154,7 @@ public class SQLStatementIT {
     }
 
     @Test
-    public void testGetReadings() throws SQLException {
+    public void testGetReadings() throws SQLException, NoSuchObjectException {
         Reading r1 = createReading();
         Reading r2 = createReading();
 
@@ -162,35 +163,37 @@ public class SQLStatementIT {
         Assertions.assertEquals(2, readings.size());
         assertThat(readings)
                 .hasSize(2)
-                .extracting(Reading::getid, Reading::getKindOfMeter, Reading::getDateOfReading, Reading::getCustomerId, Reading::getComment, Reading::getMeterCount, Reading::getMeterId, Reading::getSubstitute)
+                .extracting(Reading::getid, Reading::getKindOfMeter, Reading::getDateOfReading, r -> r.getCustomer().getid(), Reading::getComment, Reading::getMeterCount, Reading::getMeterId, Reading::getSubstitute)
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple(r1.getid(), r1.getKindOfMeter(), r1.getDateOfReading(), r1.getCustomerId(), r1.getComment(), r1.getMeterCount(), r1.getMeterId(), r1.getSubstitute()),
-                        Tuple.tuple(r2.getid(), r2.getKindOfMeter(), r2.getDateOfReading(), r2.getCustomerId(), r2.getComment(), r2.getMeterCount(), r2.getMeterId(), r2.getSubstitute())
+                        Tuple.tuple(r1.getid(), r1.getKindOfMeter(), r1.getDateOfReading(), r1.getCustomer().getid(), r1.getComment(), r1.getMeterCount(), r1.getMeterId(), r1.getSubstitute()),
+                        Tuple.tuple(r2.getid(), r2.getKindOfMeter(), r2.getDateOfReading(), r2.getCustomer().getid(), r2.getComment(), r2.getMeterCount(), r2.getMeterId(), r2.getSubstitute())
                 );
     }
 
     @Test
-    public void testGetReadingsByCustomerId() throws SQLException {
+    public void testGetReadingsByCustomerId() throws SQLException, NoSuchObjectException {
         Customer c = createCustomer();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date1 = LocalDate.parse("2024-08-20", formatter);
-        Reading r1 = new Reading(KindOfMeter.ELECTRICITY, date1, c.getid(), "No comment", 12000.23, "ELECTRICITY_1", false);
+        Reading r1 = new Reading(KindOfMeter.ELECTRICITY, date1, c, "No comment", 12000.23, "ELECTRICITY_1", false);
         sqlStmt.createReading(r1);
 
         LocalDate date2 = LocalDate.parse("2024-11-04", formatter);
-        Reading r2 = new Reading(KindOfMeter.WATER, date2, c.getid(), "No comment", 11450.20, "WATER_1", false);
+        Reading r2 = new Reading(KindOfMeter.WATER, date2, c, "No comment", 11450.20, "WATER_1", false);
         sqlStmt.createReading(r2);
 
         List<Reading> readings = sqlStmt.getReadingsByCustomerId(c.getid());
 
+        assert readings != null;
+
         Assertions.assertEquals(2, readings.size());
         assertThat(readings)
                 .hasSize(2)
-                .extracting(Reading::getid, Reading::getKindOfMeter, Reading::getDateOfReading, Reading::getCustomerId, Reading::getComment, Reading::getMeterCount, Reading::getMeterId, Reading::getSubstitute)
+                .extracting(Reading::getid, Reading::getKindOfMeter, Reading::getDateOfReading, r -> r.getCustomer().getid(), Reading::getComment, Reading::getMeterCount, Reading::getMeterId, Reading::getSubstitute)
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple(r1.getid(), r1.getKindOfMeter(), r1.getDateOfReading(), r1.getCustomerId(), r1.getComment(), r1.getMeterCount(), r1.getMeterId(), r1.getSubstitute()),
-                        Tuple.tuple(r2.getid(), r2.getKindOfMeter(), r2.getDateOfReading(), r2.getCustomerId(), r2.getComment(), r2.getMeterCount(), r2.getMeterId(), r2.getSubstitute())
+                        Tuple.tuple(r1.getid(), r1.getKindOfMeter(), r1.getDateOfReading(), r1.getCustomer().getid(), r1.getComment(), r1.getMeterCount(), r1.getMeterId(), r1.getSubstitute()),
+                        Tuple.tuple(r2.getid(), r2.getKindOfMeter(), r2.getDateOfReading(), r2.getCustomer().getid(), r2.getComment(), r2.getMeterCount(), r2.getMeterId(), r2.getSubstitute())
                 );
     }
 }

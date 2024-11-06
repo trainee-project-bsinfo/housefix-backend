@@ -5,8 +5,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpServer;
 import eu.bsinfo.db.DatabaseConnection;
 import eu.bsinfo.utils.LoggingProvider;
+import eu.bsinfo.web.exceptions.DateTimeParseExceptionMapper;
 import eu.bsinfo.web.exceptions.InvalidFormatExceptionMapper;
 import eu.bsinfo.web.exceptions.NotFoundExceptionMapper;
+import eu.bsinfo.web.exceptions.ValueInstantiationExceptionMapper;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
@@ -44,6 +46,8 @@ public class Server {
                     .register(new JacksonJsonProvider(objectMapper))
                     .register(InvalidFormatExceptionMapper.class)
                     .register(NotFoundExceptionMapper.class)
+                    .register(ValueInstantiationExceptionMapper.class)
+                    .register(DateTimeParseExceptionMapper.class)
                     .property(ServerProperties.WADL_FEATURE_DISABLE, true);
 
             server = JdkHttpServerFactory.createHttpServer(uri, config);

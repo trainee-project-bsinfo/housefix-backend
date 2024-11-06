@@ -22,6 +22,9 @@ public class Customer implements ICustomer {
                     @JsonProperty("lastName") String lastName,
                     @JsonProperty("gender") Gender gender,
                     @JsonProperty("birthDate") LocalDate birthDate) {
+        if (firstName == null || lastName == null || gender == null || birthDate == null) {
+            throw new IllegalArgumentException("Customer is missing required fields");
+        }
         this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
         this.firstName = firstName;
         this.lastName = lastName;

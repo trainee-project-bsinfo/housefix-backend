@@ -1,15 +1,16 @@
 package eu.bsinfo.db;
 
-import eu.bsinfo.web.dto.Customer;
-import eu.bsinfo.web.dto.Reading;
 import eu.bsinfo.db.enums.Gender;
 import eu.bsinfo.db.enums.KindOfMeter;
 import eu.bsinfo.utils.UUIDUtils;
+import eu.bsinfo.web.dto.Customer;
+import eu.bsinfo.web.dto.Reading;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ObjectMapper {
     public static Customer getCustomer(ResultSet rs) throws SQLException {
@@ -39,15 +40,24 @@ public class ObjectMapper {
         return customers;
     }
 
-    public static Reading getReading(ResultSet rs) throws SQLException {
+    public static Reading getReading(ResultSet rs, SQLStatement stmt) throws SQLException {
         if (!rs.next()) {
             return null;
         }
+
+        byte[] customerIdBytes = rs.getBytes("customer_id");
+        UUID customerId = customerIdBytes == null ? null : UUIDUtils.bytesAsUUID(customerIdBytes);
+        Customer customer = null;
+
+        if (customerId != null) {
+            customer = stmt.getCustomer(customerId);
+        }
+
         return new Reading(
                 UUIDUtils.bytesAsUUID(rs.getBytes("id")),
                 KindOfMeter.valueOf(rs.getString("kindOfMeter")),
                 rs.getDate("dateOfReading").toLocalDate(),
-                UUIDUtils.bytesAsUUID(rs.getBytes("customer_id")),
+                customer,
                 rs.getString("comment"),
                 rs.getDouble("meterCount"),
                 rs.getString("meterId"),
@@ -55,14 +65,22 @@ public class ObjectMapper {
         );
     }
 
-    public static List<Reading> getReadings(ResultSet rs) throws SQLException {
+    public static List<Reading> getReadings(ResultSet rs, SQLStatement stmt) throws SQLException {
         List<Reading> readings = new ArrayList<>();
         while (rs.next()) {
+            byte[] customerIdBytes = rs.getBytes("customer_id");
+            UUID customerId = customerIdBytes == null ? null : UUIDUtils.bytesAsUUID(customerIdBytes);
+            Customer customer = null;
+
+            if (customerId != null) {
+                customer = stmt.getCustomer(customerId);
+            }
+
             readings.add(new Reading(
                     UUIDUtils.bytesAsUUID(rs.getBytes("id")),
                     KindOfMeter.valueOf(rs.getString("kindOfMeter")),
                     rs.getDate("dateOfReading").toLocalDate(),
-                    UUIDUtils.bytesAsUUID(rs.getBytes("customer_id")),
+                    customer,
                     rs.getString("comment"),
                     rs.getDouble("meterCount"),
                     rs.getString("meterId"),

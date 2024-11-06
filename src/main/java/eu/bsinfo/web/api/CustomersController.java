@@ -1,8 +1,9 @@
 package eu.bsinfo.web.api;
 
 import eu.bsinfo.db.SQLStatement;
-import eu.bsinfo.web.dto.Customer;
 import eu.bsinfo.web.Server;
+import eu.bsinfo.web.dto.Customer;
+import eu.bsinfo.web.dto.CustomerWithReadings;
 import eu.bsinfo.web.dto.ErrorDto;
 import eu.bsinfo.web.dto.Reading;
 import jakarta.ws.rs.*;
@@ -37,7 +38,9 @@ public class CustomersController {
     public Response createCustomer(Customer customer) {
         try {
             stmt.createCustomer(customer);
-            return Response.ok(customer).build();
+            return Response.ok(customer)
+                    .status(Response.Status.CREATED)
+                    .build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -49,13 +52,14 @@ public class CustomersController {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response updateCustomer(Customer customer) {
         try {
             int affectedRows = stmt.updateCustomer(customer);
             if (affectedRows != 1) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok().build();
+            return Response.ok("OK").build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -84,31 +88,19 @@ public class CustomersController {
         }
     }
 
-    @GET
-    @Path("/{customerId}/readings")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCustomerReadings(@PathParam("customerId") UUID customerId) {
-        try {
-            List<Reading> readings = stmt.getReadingsByCustomerId(customerId);
-            return Response.ok(readings).build();
-        } catch (Exception e) {
-            return Response
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ErrorDto(e.getMessage()))
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-    }
-
     @DELETE
     @Path("/{customerId}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteCustomer(@PathParam("customerId") UUID customerId) {
         try {
+            Customer customer = stmt.getCustomer(customerId);
+            List<Reading> readings = stmt.getReadingsByCustomerId(customerId);
+
             int affectedRows = stmt.deleteCustomer(customerId);
             if (affectedRows != 1) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok().build();
+            return Response.ok(new CustomerWithReadings(customer, readings)).build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)

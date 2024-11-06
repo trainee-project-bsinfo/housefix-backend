@@ -1,3 +1,3 @@
 docker-compose down
 docker image rm housefix-backend mariadb
-docker volume rm housefix_data
+docker volume rm housefix-backend_data
