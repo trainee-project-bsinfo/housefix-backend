@@ -25,9 +25,7 @@ public class ServerIT {
     @Test
     public void coverage() {
         new Server();
-        Assertions.assertThrows(ServerException.class, () -> {
-            Server.startServer("", null);
-        });
+        Assertions.assertThrows(ServerException.class, () -> Server.startServer("", null));
         Server.stopServer();
     }
 }
