@@ -2,7 +2,6 @@ package eu.bsinfo.db.models;
 
 
 import eu.bsinfo.db.enums.KindOfMeter;
-import eu.bsinfo.web.dto.Customer;
 
 import java.time.LocalDate;
 

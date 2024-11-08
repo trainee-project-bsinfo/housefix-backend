@@ -2,8 +2,8 @@ package eu.bsinfo.db;
 
 import eu.bsinfo.db.enums.Tables;
 import eu.bsinfo.utils.UUIDUtils;
-import eu.bsinfo.web.dto.Customer;
-import eu.bsinfo.web.dto.Reading;
+import eu.bsinfo.db.models.Customer;
+import eu.bsinfo.db.models.Reading;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.rmi.NoSuchObjectException;
@@ -45,11 +45,7 @@ public class SQLStatement {
         stmt.setDate(4, Date.valueOf(customer.getBirthDate()));
         stmt.setString(5, customer.getGender().toString());
 
-        int rowsAffected = stmt.executeUpdate();
-        if (rowsAffected == 0) {
-            throw new SQLException("Customer creation failed");
-        }
-
+        stmt.executeUpdate();
         stmt.close();
     }
 
@@ -122,11 +118,7 @@ public class SQLStatement {
         stmt.setBoolean(7, reading.getSubstitute());
         stmt.setBytes(8, UUIDUtils.UUIDAsBytes(reading.getCustomer().getid()));
 
-        int rowsAffected = stmt.executeUpdate();
-        if (rowsAffected == 0) {
-            throw new SQLException("Reading creation failed");
-        }
-
+        stmt.executeUpdate();
         stmt.close();
     }
 
@@ -141,7 +133,7 @@ public class SQLStatement {
         stmt.setBoolean(6, reading.getSubstitute());
 
         byte[] customerId = null;
-        if (reading.getCustomer() != null || reading.getCustomer().getid() != null) {
+        if (reading.getCustomer() != null) {
             customerId = UUIDUtils.UUIDAsBytes(reading.getCustomer().getid());
         }
         stmt.setBytes(7, customerId);

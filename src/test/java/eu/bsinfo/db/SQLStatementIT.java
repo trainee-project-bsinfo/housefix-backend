@@ -1,7 +1,7 @@
 package eu.bsinfo.db;
 
-import eu.bsinfo.web.dto.Customer;
-import eu.bsinfo.web.dto.Reading;
+import eu.bsinfo.db.models.Customer;
+import eu.bsinfo.db.models.Reading;
 import eu.bsinfo.db.enums.Gender;
 import eu.bsinfo.db.enums.KindOfMeter;
 import org.assertj.core.groups.Tuple;
@@ -31,6 +31,7 @@ public class SQLStatementIT {
         conn.truncateAllTables();
         sqlStmt = new SQLStatement(conn);
     }
+
     @AfterAll
     static void close() {
         conn.closeConnection();
@@ -53,7 +54,7 @@ public class SQLStatementIT {
 
     Reading createReading() throws SQLException, NoSuchObjectException {
         Customer c = createCustomer();
-        
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse("2024-08-20", formatter);
         Reading r = new Reading(KindOfMeter.ELECTRICITY, date, c, "No comment", 12000.23, "ELECTRICITY_1", false);
@@ -195,5 +196,18 @@ public class SQLStatementIT {
                         Tuple.tuple(r1.getid(), r1.getKindOfMeter(), r1.getDateOfReading(), r1.getCustomer().getid(), r1.getComment(), r1.getMeterCount(), r1.getMeterId(), r1.getSubstitute()),
                         Tuple.tuple(r2.getid(), r2.getKindOfMeter(), r2.getDateOfReading(), r2.getCustomer().getid(), r2.getComment(), r2.getMeterCount(), r2.getMeterId(), r2.getSubstitute())
                 );
+    }
+
+    @Test
+    public void coverage() throws SQLException, NoSuchObjectException {
+        Assertions.assertThrows(NoSuchObjectException.class, () ->
+            sqlStmt.createReading(
+                    new Reading(KindOfMeter.ELECTRICITY, LocalDate.of(2020, 3, 5),
+                            new Customer(null, "John", "Doe", Gender.MALE, LocalDate.of(1, 1, 1)),
+                            "No comment", 12000.23, "ELECTRICITY_1", false))
+        );
+        Reading reading = createReading();
+        reading.setCustomer(null);
+        sqlStmt.updateReading(reading);
     }
 }

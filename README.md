@@ -26,3 +26,7 @@ Command to Stop: `docker-compose down`
 
 ## Clear Docker
 Run: `bash clear-docker.sh`
+
+## Differences to the script
+Gender: `["DIVERS", "MALE", "FEMALE", "UNSPECIFIED"]`\
+KindOfMeter: `["HEATER", "ELECTRICITY", "WATER", "UNKNOWN"]`
