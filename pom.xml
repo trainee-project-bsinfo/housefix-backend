@@ -14,6 +14,9 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <skipTests>false</skipTests>
+        <skipIT>${skipTests}</skipIT>
+
         <jersey.version>3.1.9</jersey.version>
         <jackson.version>2.18.0</jackson.version>
     </properties>
@@ -136,6 +139,9 @@
                         <goals>
                             <goal>integration-test</goal>
                         </goals>
+                        <configuration>
+                            <skipTests>${skipIT}</skipTests>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -176,6 +182,7 @@
                                     </limits>
                                 </rule>
                             </rules>
+                            <skip>${skipIT}</skip>
                         </configuration>
                     </execution>
                 </executions>
