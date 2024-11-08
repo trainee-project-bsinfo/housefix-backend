@@ -1,9 +1,10 @@
-package eu.bsinfo.web.dto;
+package eu.bsinfo.db.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import eu.bsinfo.db.enums.Gender;
-import eu.bsinfo.db.models.ICustomer;
+import eu.bsinfo.web.LocalDateSerializer;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -21,7 +22,7 @@ public class Customer implements ICustomer {
                     @JsonProperty("firstName") String firstName,
                     @JsonProperty("lastName") String lastName,
                     @JsonProperty("gender") Gender gender,
-                    @JsonProperty("birthDate") LocalDate birthDate) {
+                    @JsonProperty("birthDate") @JsonSerialize(using = LocalDateSerializer.class) LocalDate birthDate) {
         if (firstName == null || lastName == null || gender == null || birthDate == null) {
             throw new IllegalArgumentException("Customer is missing required fields");
         }

@@ -1,4 +1,4 @@
-package eu.bsinfo.utils;
+package eu.bsinfo.web;
 
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;

@@ -12,8 +12,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 public class DatabaseConnection implements IDatabaseConnection {
+    private final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
+
     private final String db;
     private final String user;
     private final String password;
@@ -90,9 +93,9 @@ public class DatabaseConnection implements IDatabaseConnection {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createCustomersTable);
             stmt.execute(createReadingTable);
-            System.out.println("Tabellen erfolgreich erstellt.");
+            LOGGER.info("Tables created");
         } catch (SQLException e) {
-            System.err.println("Fehler beim Erstellen der Tabellen: " + e.getMessage());
+            LOGGER.severe("Couldn't create tables: " + e.getMessage());
         }
     }
 
@@ -108,9 +111,9 @@ public class DatabaseConnection implements IDatabaseConnection {
             stmt.execute(truncateReadingTable);
             stmt.execute(truncateCustomersTable);
             stmt.execute(enableFKChecks);
-            System.out.println("Tabellen erfolgreich geleert.");
+            LOGGER.info("Tables truncated");
         } catch (SQLException e) {
-            System.err.println("Fehler beim Leeren der Tabellen: " + e.getMessage());
+            LOGGER.severe("Couldn't truncate tables: " + e.getMessage());
         }
     }
 
@@ -122,9 +125,9 @@ public class DatabaseConnection implements IDatabaseConnection {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(dropFK);
             stmt.execute(dropTables);
-            System.out.println("Tabellen erfolgreich entfernt.");
+            LOGGER.info("Tables dropped");
         } catch (SQLException e) {
-            System.err.println("Fehler beim Entfernen der Tabellen: " + e.getMessage());
+            LOGGER.severe("Couldn't drop tables " + e.getMessage());
         }
     }
 
@@ -134,7 +137,7 @@ public class DatabaseConnection implements IDatabaseConnection {
             try {
                 conn.close();
             } catch (SQLException e) {
-                System.err.println("Fehler beim Schließen der Datenbankverbindung: " + e.getMessage());
+                LOGGER.severe("Couldn't close db connection: " + e.getMessage());
             }
         }
     }

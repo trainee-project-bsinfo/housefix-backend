@@ -1,5 +1,7 @@
 package eu.bsinfo.web.api;
 
+import com.google.common.annotations.VisibleForTesting;
+import eu.bsinfo.Main;
 import eu.bsinfo.db.ObjectMapper;
 import eu.bsinfo.db.PreparedStatementBuilder;
 import eu.bsinfo.db.SQLStatement;
@@ -8,7 +10,9 @@ import eu.bsinfo.db.enums.Tables;
 import eu.bsinfo.utils.UUIDUtils;
 import eu.bsinfo.web.Server;
 import eu.bsinfo.web.dto.ErrorDto;
-import eu.bsinfo.web.dto.Reading;
+import eu.bsinfo.db.models.Reading;
+import eu.bsinfo.web.dto.ReadingDto;
+import eu.bsinfo.web.dto.ReadingsDto;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -22,7 +26,7 @@ import java.util.UUID;
 
 @Path("/readings")
 public class ReadingsController {
-    private final SQLStatement stmt = new SQLStatement(Server.getDbConn());
+    private SQLStatement stmt = new SQLStatement(Server.getDbConn());
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -121,14 +125,12 @@ public class ReadingsController {
                     prepStmt.setDate(i + 1, Date.valueOf((LocalDate)param));
                 } else if (param instanceof Enum<?>) {
                     prepStmt.setString(i + 1, param.toString());
-                } else {
-                    prepStmt.setObject(i + 1, param);
                 }
             }
 
             List<Reading> readings = ObjectMapper.getReadings(prepStmt.executeQuery(), stmt);
 
-            return Response.ok(readings).build();
+            return Response.ok(new ReadingsDto(readings)).build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -143,10 +145,10 @@ public class ReadingsController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createReading(Reading reading) {
         try {
-            if (reading.getCustomer() == null || reading.getCustomer().getid() == null) {
+            if (reading.getCustomer() == null) {
                 return Response
                         .status(Response.Status.BAD_REQUEST)
-                        .entity(new ErrorDto("Customer is missing or incomplete"))
+                        .entity(new ErrorDto("Customer is missing"))
                         .type(MediaType.APPLICATION_JSON)
                         .build();
             }
@@ -157,7 +159,7 @@ public class ReadingsController {
             stmt.createReading(reading);
 
             return Response
-                    .ok(reading)
+                    .ok(new ReadingDto(reading))
                     .status(Response.Status.CREATED)
                     .build();
         } catch (Exception e) {
@@ -174,10 +176,10 @@ public class ReadingsController {
     @Produces(MediaType.TEXT_PLAIN)
     public Response updateReading(Reading reading) {
         try {
-            if (reading.getCustomer().getid() == null) {
+            if (reading.getCustomer() == null) {
                 return Response
                         .status(Response.Status.BAD_REQUEST)
-                        .entity(new ErrorDto("Customer Id is missing"))
+                        .entity(new ErrorDto("Customer is missing"))
                         .type(MediaType.APPLICATION_JSON)
                         .build();
             }
@@ -212,7 +214,7 @@ public class ReadingsController {
             if (reading == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(reading).build();
+            return Response.ok(new ReadingDto(reading)).build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -232,7 +234,7 @@ public class ReadingsController {
             if (affectedRows != 1) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(reading).build();
+            return Response.ok(new ReadingDto(reading)).build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -240,5 +242,13 @@ public class ReadingsController {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
+    }
+
+    @VisibleForTesting
+    public void setStmt(SQLStatement stmt) {
+        if (!Main.isInTestMode()) {
+            throw Main.getOnlyForTestingException();
+        }
+        this.stmt = stmt;
     }
 }

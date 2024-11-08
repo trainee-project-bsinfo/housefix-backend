@@ -1,9 +1,10 @@
-package eu.bsinfo.web.dto;
+package eu.bsinfo.db.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import eu.bsinfo.db.enums.KindOfMeter;
-import eu.bsinfo.db.models.IReading;
+import eu.bsinfo.web.LocalDateSerializer;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class Reading implements IReading {
     @JsonCreator
     public Reading(@JsonProperty("id") UUID id,
                    @JsonProperty("kindOfMeter") KindOfMeter kindOfMeter,
-                   @JsonProperty("dateOfReading") LocalDate dateOfReading,
+                   @JsonProperty("dateOfReading") @JsonSerialize(using = LocalDateSerializer.class) LocalDate dateOfReading,
                    @JsonProperty("customer") Customer customer,
                    @JsonProperty("comment") String comment,
                    @JsonProperty("meterCount") Double meterCount,

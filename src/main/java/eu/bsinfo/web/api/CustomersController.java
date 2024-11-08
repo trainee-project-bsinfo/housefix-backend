@@ -1,11 +1,15 @@
 package eu.bsinfo.web.api;
 
+import com.google.common.annotations.VisibleForTesting;
+import eu.bsinfo.Main;
 import eu.bsinfo.db.SQLStatement;
+import eu.bsinfo.db.models.Customer;
+import eu.bsinfo.db.models.Reading;
 import eu.bsinfo.web.Server;
-import eu.bsinfo.web.dto.Customer;
-import eu.bsinfo.web.dto.CustomerWithReadings;
+import eu.bsinfo.web.dto.CustomerDto;
+import eu.bsinfo.web.dto.CustomerWithReadingsDto;
+import eu.bsinfo.web.dto.CustomersDto;
 import eu.bsinfo.web.dto.ErrorDto;
-import eu.bsinfo.web.dto.Reading;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -15,14 +19,14 @@ import java.util.UUID;
 
 @Path("/customers")
 public class CustomersController {
-    private final SQLStatement stmt = new SQLStatement(Server.getDbConn());
+    private SQLStatement stmt = new SQLStatement(Server.getDbConn());
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCustomers() {
         try {
             List<Customer> customers = stmt.getCustomers();
-            return Response.ok(customers).build();
+            return Response.ok(new CustomersDto(customers)).build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -38,7 +42,7 @@ public class CustomersController {
     public Response createCustomer(Customer customer) {
         try {
             stmt.createCustomer(customer);
-            return Response.ok(customer)
+            return Response.ok(new CustomerDto(customer))
                     .status(Response.Status.CREATED)
                     .build();
         } catch (Exception e) {
@@ -78,7 +82,7 @@ public class CustomersController {
             if (customer == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(customer).build();
+            return Response.ok(new CustomerDto(customer)).build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -100,7 +104,7 @@ public class CustomersController {
             if (affectedRows != 1) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(new CustomerWithReadings(customer, readings)).build();
+            return Response.ok(new CustomerWithReadingsDto(customer, readings)).build();
         } catch (Exception e) {
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -108,5 +112,13 @@ public class CustomersController {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
+    }
+
+    @VisibleForTesting
+    public void setStmt(SQLStatement stmt) {
+        if (!Main.isInTestMode()) {
+            throw Main.getOnlyForTestingException();
+        }
+        this.stmt = stmt;
     }
 }
