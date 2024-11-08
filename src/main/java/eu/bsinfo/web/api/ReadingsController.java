@@ -129,6 +129,7 @@ public class ReadingsController {
             }
 
             List<Reading> readings = ObjectMapper.getReadings(prepStmt.executeQuery(), stmt);
+            prepStmt.close();
 
             return Response.ok(new ReadingsDto(readings)).build();
         } catch (Exception e) {

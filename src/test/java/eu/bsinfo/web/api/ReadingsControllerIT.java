@@ -125,9 +125,9 @@ public class ReadingsControllerIT {
     @Test
     public void testGetReadingsFilterByStartDateAndOrEndDate() throws SQLException, NoSuchObjectException {
         Customer c = createCustomer();
-        Reading r = createReading(c, "2024-10-10");
-        Reading r2 = createReading(c, "2024-11-10");
-        Reading r3 = createReading(c, "2024-11-11");
+        createReading(c, "2024-10-10");
+        createReading(c, "2024-11-10");
+        createReading(c, "2024-11-11");
 
 
         Response res = RestAssured.get("/readings?start=2024-10-10&end=2024-11-10");
@@ -399,7 +399,7 @@ public class ReadingsControllerIT {
         Assertions.assertEquals(500, res.getStatus());
         ErrorDto errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
 
         res = rc.updateReading(r);
 
@@ -410,7 +410,7 @@ public class ReadingsControllerIT {
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
 
         res = rc.getReading(any());
 
@@ -421,7 +421,7 @@ public class ReadingsControllerIT {
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
 
         res = rc.deleteReading(any());
 
@@ -432,7 +432,7 @@ public class ReadingsControllerIT {
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
 
         MockedStatic<ObjectMapper> mockOM = Mockito.mockStatic(ObjectMapper.class);
         mockOM.when(() -> ObjectMapper.getReadings(any(), any())).thenThrow(new SQLException(errMsg));
@@ -441,7 +441,7 @@ public class ReadingsControllerIT {
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
 
         mockOM.close();
     }

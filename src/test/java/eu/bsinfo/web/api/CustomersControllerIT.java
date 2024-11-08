@@ -189,46 +189,62 @@ public class CustomersControllerIT {
         Assertions.assertEquals(500, res.getStatus());
         ErrorDto errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
+
+        res.close();
 
         res = cc.createCustomer(any());
 
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
+
+        res.close();
 
         res = cc.updateCustomer(any());
 
         Assertions.assertEquals(404, res.getStatus());
 
+        res.close();
+
         res = cc.updateCustomer(any());
 
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
+
+        res.close();
 
         res = cc.getCustomer(any());
 
         Assertions.assertEquals(404, res.getStatus());
+
+        res.close();
 
         res = cc.getCustomer(any());
 
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
+
+        res.close();
 
         res = cc.deleteCustomer(any());
 
         Assertions.assertEquals(404, res.getStatus());
+
+        res.close();
 
         res = cc.deleteCustomer(any());
 
         Assertions.assertEquals(500, res.getStatus());
         errorDto = (ErrorDto) res.getEntity();
         Assertions.assertNotNull(errorDto);
-        Assertions.assertTrue(errorDto.getMessage().equals(errMsg));
+        Assertions.assertEquals(errorDto.getMessage(), errMsg);
+
+        res.close();
     }
 }
