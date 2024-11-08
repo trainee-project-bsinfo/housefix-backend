@@ -1,11 +1,11 @@
 package eu.bsinfo.db.enums;
 
-public enum Tables {
-    CUSTOMERS("customers"),
-    READINGS("readings");
+public enum SQLSortingOrder {
+    ASC("ASC"),
+    DESC("DESC");
 
     private final String name;
-    Tables(String name) {
+    SQLSortingOrder(String name) {
         this.name = name;
     }
     public String toString() {

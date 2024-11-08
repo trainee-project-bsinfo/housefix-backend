@@ -5,10 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpServer;
 import eu.bsinfo.db.DatabaseConnection;
 import eu.bsinfo.utils.LoggingProvider;
-import eu.bsinfo.web.exceptions.DateTimeParseExceptionMapper;
-import eu.bsinfo.web.exceptions.InvalidFormatExceptionMapper;
-import eu.bsinfo.web.exceptions.NotFoundExceptionMapper;
-import eu.bsinfo.web.exceptions.ValueInstantiationExceptionMapper;
+import eu.bsinfo.web.exceptions.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
@@ -25,14 +22,10 @@ public class Server {
     private static HttpServer server;
     private static DatabaseConnection dbConn;
 
-    public static void startServer(String url) {
+    public static void startServer(String url, DatabaseConnection databaseConnection) {
         try {
-            String db = System.getenv("MYSQL_DATABASE");
-            String user = System.getenv("MYSQL_USER");
-            String password = System.getenv("MYSQL_PASSWORD");
-
-            dbConn = new DatabaseConnection(db, user, password)
-                    .openConnection();
+            dbConn = databaseConnection;
+            dbConn.openConnection();
             dbConn.createAllTables();
             Runtime.getRuntime().addShutdownHook(new Thread(dbConn::closeConnection));
 

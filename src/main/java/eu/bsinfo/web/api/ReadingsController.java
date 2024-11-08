@@ -1,7 +1,11 @@
 package eu.bsinfo.web.api;
 
+import eu.bsinfo.db.ObjectMapper;
+import eu.bsinfo.db.PreparedStatementBuilder;
 import eu.bsinfo.db.SQLStatement;
 import eu.bsinfo.db.enums.KindOfMeter;
+import eu.bsinfo.db.enums.Tables;
+import eu.bsinfo.utils.UUIDUtils;
 import eu.bsinfo.web.Server;
 import eu.bsinfo.web.dto.ErrorDto;
 import eu.bsinfo.web.dto.Reading;
@@ -9,7 +13,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +31,8 @@ public class ReadingsController {
                                 @QueryParam("end") String end,
                                 @QueryParam("kindOfMeter") KindOfMeter kindOfMeter) {
         try {
-            List<Reading> readings = stmt.getReadings();
+            // NOTE: the following code is simpler but less performant
+            /*List<Reading> readings = stmt.getReadings();
 
             if (customerId != null) {
                 readings = stmt.getReadingsByCustomerId(customerId);
@@ -48,7 +56,77 @@ public class ReadingsController {
 
             if (kindOfMeter != null) {
                 readings = readings.stream().filter(r -> r.getKindOfMeter().equals(kindOfMeter)).toList();
+            }*/
+            List<Object> sqlParams = new ArrayList<>();
+            PreparedStatementBuilder stmtBuilder = new PreparedStatementBuilder()
+                    .select(new String[]{"*"})
+                    .from(Tables.READINGS);
+
+            if (customerId != null) {
+                stmtBuilder.where("customer_id", "=");
+                sqlParams.add(customerId);
             }
+
+            if (start != null && end != null) {
+                LocalDate startDate = LocalDate.parse(start);
+                LocalDate endDate = LocalDate.parse(end);
+
+                if (customerId != null) {
+                    stmtBuilder.and("dateOfReading", ">=");
+                    stmtBuilder.and("dateOfReading", "<=");
+                } else {
+                    stmtBuilder.where("dateOfReading", ">=");
+                    stmtBuilder.and("dateOfReading", "<=");
+                }
+
+                sqlParams.add(startDate);
+                sqlParams.add(endDate);
+            } else if (start != null) {
+                LocalDate startDate = LocalDate.parse(start);
+
+                if (customerId != null) {
+                    stmtBuilder.and("dateOfReading", ">=");
+                } else {
+                    stmtBuilder.where("dateOfReading", ">=");
+                }
+
+                sqlParams.add(startDate);
+            } else if (end != null) {
+                LocalDate endDate = LocalDate.parse(end);
+
+                if (customerId != null) {
+                    stmtBuilder.and("dateOfReading", "<=");
+                } else {
+                    stmtBuilder.where("dateOfReading", "<=");
+                }
+
+                sqlParams.add(endDate);
+            }
+
+            if (kindOfMeter != null) {
+                if (stmtBuilder.getSql().contains("WHERE")) {
+                    stmtBuilder.and("kindOfMeter", "=");
+                } else {
+                    stmtBuilder.where("kindOfMeter", "=");
+                }
+                sqlParams.add(kindOfMeter);
+            }
+
+            PreparedStatement prepStmt = stmtBuilder.build(Server.getDbConn());
+            for (int i = 0; i < sqlParams.size(); i++) {
+                Object param = sqlParams.get(i);
+                if (param instanceof UUID) {
+                    prepStmt.setBytes(i + 1, UUIDUtils.UUIDAsBytes((UUID)param));
+                } else if (param instanceof LocalDate) {
+                    prepStmt.setDate(i + 1, Date.valueOf((LocalDate)param));
+                } else if (param instanceof Enum<?>) {
+                    prepStmt.setString(i + 1, param.toString());
+                } else {
+                    prepStmt.setObject(i + 1, param);
+                }
+            }
+
+            List<Reading> readings = ObjectMapper.getReadings(prepStmt.executeQuery(), stmt);
 
             return Response.ok(readings).build();
         } catch (Exception e) {
