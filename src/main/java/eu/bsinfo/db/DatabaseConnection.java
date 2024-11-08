@@ -75,7 +75,7 @@ public class DatabaseConnection implements IDatabaseConnection {
             }
         }
 
-        String createReadingTable = "CREATE TABLE IF NOT EXISTS "+Tables.READING+" (" +
+        String createReadingTable = "CREATE TABLE IF NOT EXISTS "+Tables.READINGS+" (" +
                 "id BINARY(16) PRIMARY KEY, " +
                 "comment TEXT, " +
                 "dateOfReading DATE NOT NULL, " +
@@ -101,7 +101,7 @@ public class DatabaseConnection implements IDatabaseConnection {
         String disableFKChecks = "SET FOREIGN_KEY_CHECKS = 0;";
         String enableFKChecks = "SET FOREIGN_KEY_CHECKS = 1;";
         String truncateReadingTable = "TRUNCATE TABLE "+Tables.CUSTOMERS+";";
-        String truncateCustomersTable = "TRUNCATE TABLE "+Tables.READING+";";
+        String truncateCustomersTable = "TRUNCATE TABLE "+Tables.READINGS+";";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(disableFKChecks);
@@ -116,8 +116,8 @@ public class DatabaseConnection implements IDatabaseConnection {
 
     @Override
     public void removeAllTables() {
-        String dropFK = "ALTER TABLE "+Tables.READING+" DROP FOREIGN KEY fk_customer;";
-        String dropTables = "DROP TABLE IF EXISTS "+Tables.CUSTOMERS+","+Tables.READING+";";
+        String dropFK = "ALTER TABLE "+Tables.READINGS+" DROP FOREIGN KEY fk_customer;";
+        String dropTables = "DROP TABLE IF EXISTS "+Tables.CUSTOMERS+","+Tables.READINGS+";";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(dropFK);

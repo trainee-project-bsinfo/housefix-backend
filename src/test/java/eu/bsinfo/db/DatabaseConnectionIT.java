@@ -42,7 +42,7 @@ public class DatabaseConnectionIT {
     public void testCreateNecessaryTables() throws SQLException {
         Statement stmt = conn.getConnection().createStatement();
 
-        ResultSet rs = stmt.executeQuery("SELECT * FROM information_schema.tables WHERE table_name = '"+Tables.READING+"';");
+        ResultSet rs = stmt.executeQuery("SELECT * FROM information_schema.tables WHERE table_name = '"+Tables.READINGS+"';");
         assertTrue(rs.next());
 
         rs = stmt.executeQuery("SELECT * FROM information_schema.tables WHERE table_name = '"+Tables.CUSTOMERS+"';");
@@ -86,7 +86,7 @@ public class DatabaseConnectionIT {
         ResultSet rs = stmt.executeQuery("SELECT * FROM information_schema.tables WHERE table_name = '"+Tables.CUSTOMERS+"';");
         assertFalse(rs.next());
 
-        rs = stmt.executeQuery("SELECT * FROM information_schema.tables WHERE table_name = '"+Tables.READING+"';");
+        rs = stmt.executeQuery("SELECT * FROM information_schema.tables WHERE table_name = '"+Tables.READINGS+"';");
         assertFalse(rs.next());
 
         stmt.close();

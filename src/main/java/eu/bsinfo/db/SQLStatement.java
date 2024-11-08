@@ -81,7 +81,7 @@ public class SQLStatement {
 
     @Nullable
     public Reading getReading(UUID id) throws SQLException {
-        String query = "SELECT * FROM "+Tables.READING+" WHERE id = ?;";
+        String query = "SELECT * FROM "+Tables.READINGS+" WHERE id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(query);
         stmt.setBytes(1, UUIDUtils.UUIDAsBytes(id));
         ResultSet rs = stmt.executeQuery();
@@ -90,7 +90,7 @@ public class SQLStatement {
     }
 
     public List<Reading> getReadingsByCustomerId(UUID customerId) throws SQLException {
-        String query = "SELECT * FROM "+Tables.READING+" WHERE customer_id = ?;";
+        String query = "SELECT * FROM "+Tables.READINGS+" WHERE customer_id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(query);
         stmt.setBytes(1, UUIDUtils.UUIDAsBytes(customerId));
         ResultSet rs = stmt.executeQuery();
@@ -99,7 +99,7 @@ public class SQLStatement {
     }
 
     public List<Reading> getReadings() throws SQLException {
-        String query = "SELECT * FROM "+Tables.READING+";";
+        String query = "SELECT * FROM "+Tables.READINGS+";";
         Statement stmt = dbConn.getConnection().createStatement();
         ResultSet rs = stmt.executeQuery(query);
         stmt.close();
@@ -111,7 +111,7 @@ public class SQLStatement {
             throw new NoSuchObjectException("Customer not found");
         }
 
-        String mutation = "INSERT INTO "+Tables.READING+" (id, comment, dateOfReading, kindOfMeter, meterCount, meterId, substitute, customer_id) VALUES (?,?,?,?,?,?,?,?);";
+        String mutation = "INSERT INTO "+Tables.READINGS+" (id, comment, dateOfReading, kindOfMeter, meterCount, meterId, substitute, customer_id) VALUES (?,?,?,?,?,?,?,?);";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(mutation);
         stmt.setBytes(1, UUIDUtils.UUIDAsBytes(reading.getid()));
         stmt.setString(2, reading.getComment());
@@ -131,7 +131,7 @@ public class SQLStatement {
     }
 
     public int updateReading(Reading reading) throws SQLException {
-        String mutation = "UPDATE "+Tables.READING+" SET comment = ?, dateOfReading = ?, kindOfMeter = ?, meterCount = ?, meterId = ?, substitute = ?, customer_id = ? WHERE id = ?;";
+        String mutation = "UPDATE "+Tables.READINGS+" SET comment = ?, dateOfReading = ?, kindOfMeter = ?, meterCount = ?, meterId = ?, substitute = ?, customer_id = ? WHERE id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(mutation);
         stmt.setString(1, reading.getComment());
         stmt.setDate(2, Date.valueOf(reading.getDateOfReading()));
@@ -154,7 +154,7 @@ public class SQLStatement {
     }
 
     public int deleteReading(UUID readingId) throws SQLException {
-        String mutation = "DELETE FROM "+Tables.READING+" WHERE id = ?;";
+        String mutation = "DELETE FROM "+Tables.READINGS+" WHERE id = ?;";
         PreparedStatement stmt = dbConn.getConnection().prepareStatement(mutation);
         stmt.setBytes(1, UUIDUtils.UUIDAsBytes(readingId));
 
