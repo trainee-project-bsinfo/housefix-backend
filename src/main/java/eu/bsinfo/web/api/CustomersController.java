@@ -116,9 +116,7 @@ public class CustomersController {
 
     @VisibleForTesting
     public void setStmt(SQLStatement stmt) {
-        if (!Main.isInTestMode()) {
-            throw Main.getOnlyForTestingException();
-        }
+        Main.ensureOnlyForTesting();
         this.stmt = stmt;
     }
 }

@@ -15,10 +15,10 @@ public class Main {
         Server.startServer("http://0.0.0.0:8080/", dbConn);
     }
 
-    public static boolean isInTestMode() {
-        return Boolean.parseBoolean(System.getProperty("testing", "false"));
-    }
-    public static UnsupportedOperationException getOnlyForTestingException() {
-        return new UnsupportedOperationException("This method is for testing purposes only: activate test mode with -Dtesting");
+    public static void ensureOnlyForTesting() {
+        boolean testing = Boolean.parseBoolean(System.getProperty("testing", "false"));
+        if (!testing) {
+            throw new UnsupportedOperationException("This method is for testing purposes only: activate test mode with -Dtesting");
+        }
     }
 }
