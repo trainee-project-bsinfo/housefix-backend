@@ -19,6 +19,7 @@ services:
       args:
         - DB_HOSTNAME_PORT=mariadb:3306
       dockerfile: Dockerfile
+    image: housefix-backend
     depends_on:
       - db
     container_name: backend
