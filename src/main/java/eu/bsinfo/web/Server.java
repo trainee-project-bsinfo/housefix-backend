@@ -49,6 +49,7 @@ public class Server {
                     .register(NotFoundExceptionMapper.class)
                     .register(ValueInstantiationExceptionMapper.class)
                     .register(DateTimeParseExceptionMapper.class)
+                    .register(CorsFilter.class)
                     .property(ServerProperties.WADL_FEATURE_DISABLE, true);
 
             server = JdkHttpServerFactory.createHttpServer(uri, config);
