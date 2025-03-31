@@ -5,6 +5,7 @@ import eu.bsinfo.db.enums.KindOfMeter;
 import eu.bsinfo.db.enums.Tables;
 import eu.bsinfo.manager.ConfigManager;
 import eu.bsinfo.manager.ConfigProperties;
+import eu.bsinfo.utils.SHAUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -15,7 +16,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class DatabaseConnection implements IDatabaseConnection {
-    private final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
+    private final Logger LOGGER = Logger.getLogger(getClass().getName());
 
     private final String db;
     private final String user;
@@ -60,12 +61,12 @@ public class DatabaseConnection implements IDatabaseConnection {
             }
         }
 
-        String createCustomersTable = "CREATE TABLE IF NOT EXISTS "+ Tables.CUSTOMERS+" (" +
+        String createCustomersTable = "CREATE TABLE IF NOT EXISTS " + Tables.CUSTOMERS + " (" +
                 "id BINARY(16) PRIMARY KEY, " +
                 "firstName VARCHAR(255) NOT NULL, " +
                 "lastName VARCHAR(255) NOT NULL, " +
                 "birthDate DATE, " +
-                "gender ENUM("+genderEnums+")" +
+                "gender ENUM(" + genderEnums + ")" +
                 ");";
 
         StringBuilder kindOfMeterEnums = new StringBuilder();
@@ -78,24 +79,44 @@ public class DatabaseConnection implements IDatabaseConnection {
             }
         }
 
-        String createReadingTable = "CREATE TABLE IF NOT EXISTS "+Tables.READINGS+" (" +
+        String createReadingTable = "CREATE TABLE IF NOT EXISTS " + Tables.READINGS + " (" +
                 "id BINARY(16) PRIMARY KEY, " +
                 "comment TEXT, " +
                 "dateOfReading DATE NOT NULL, " +
-                "kindOfMeter ENUM("+kindOfMeterEnums+")," +
+                "kindOfMeter ENUM(" + kindOfMeterEnums + ")," +
                 "meterCount DOUBLE NOT NULL, " +
                 "meterId VARCHAR(255), " +
                 "substitute BOOLEAN, " +
                 "customer_id BINARY(16), " +
-                "CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES "+Tables.CUSTOMERS+"(id) ON DELETE SET NULL" +
+                "CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES " + Tables.CUSTOMERS + "(id) ON DELETE SET NULL" +
                 ");";
+
+        String createUsersTable = "CREATE TABLE IF NOT EXISTS " + Tables.USERS + " (" +
+                "username VARCHAR(255) PRIMARY KEY, " +
+                "salt TEXT NOT NULL, " +
+                "password TEXT NOT NULL, " +
+                "session TEXT " +
+                ");";
+
+        String adminNameAndPW = "admin";
+        String adminPWSalt = "secret_salt";
+        String insertAdminUser = "INSERT IGNORE INTO " + Tables.USERS + " (username, salt, password) VALUES " +
+                "('" + adminNameAndPW + "', '" + adminPWSalt + "', '" + SHAUtils.getSHA512(adminPWSalt, adminNameAndPW) + "');";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createCustomersTable);
             stmt.execute(createReadingTable);
+            stmt.execute(createUsersTable);
             LOGGER.info("Tables created");
         } catch (SQLException e) {
             LOGGER.severe("Couldn't create tables: " + e.getMessage());
+        }
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(insertAdminUser);
+            LOGGER.info("Admin user inserted");
+        } catch (SQLException e) {
+            LOGGER.severe("Couldn't insert admin user: " + e.getMessage());
         }
     }
 
@@ -103,13 +124,15 @@ public class DatabaseConnection implements IDatabaseConnection {
     public void truncateAllTables() {
         String disableFKChecks = "SET FOREIGN_KEY_CHECKS = 0;";
         String enableFKChecks = "SET FOREIGN_KEY_CHECKS = 1;";
-        String truncateReadingTable = "TRUNCATE TABLE "+Tables.CUSTOMERS+";";
-        String truncateCustomersTable = "TRUNCATE TABLE "+Tables.READINGS+";";
+        String truncateReadingTable = "TRUNCATE TABLE " + Tables.CUSTOMERS + ";";
+        String truncateCustomersTable = "TRUNCATE TABLE " + Tables.READINGS + ";";
+        String truncateUsersTable = "TRUNCATE TABLE " + Tables.USERS + ";";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(disableFKChecks);
             stmt.execute(truncateReadingTable);
             stmt.execute(truncateCustomersTable);
+            stmt.execute(truncateUsersTable);
             stmt.execute(enableFKChecks);
             LOGGER.info("Tables truncated");
         } catch (SQLException e) {
@@ -119,8 +142,8 @@ public class DatabaseConnection implements IDatabaseConnection {
 
     @Override
     public void removeAllTables() {
-        String dropFK = "ALTER TABLE "+Tables.READINGS+" DROP FOREIGN KEY fk_customer;";
-        String dropTables = "DROP TABLE IF EXISTS "+Tables.CUSTOMERS+","+Tables.READINGS+";";
+        String dropFK = "ALTER TABLE " + Tables.READINGS + " DROP FOREIGN KEY fk_customer;";
+        String dropTables = "DROP TABLE IF EXISTS " + Tables.CUSTOMERS + "," + Tables.READINGS + "," + Tables.USERS + ";";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(dropFK);

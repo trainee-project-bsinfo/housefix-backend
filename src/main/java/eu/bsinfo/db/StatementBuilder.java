@@ -32,7 +32,15 @@ public class StatementBuilder {
     @SafeVarargs
     public final <T> StatementBuilder update(Tables table, String[] columns, T... values) {
         String[] valueStrings = Arrays.stream(values)
-                .map(value -> value instanceof String ? "'" + value + "'" : value.toString())
+                .map(value -> {
+                    if (value == null) {
+                        return "NULL";
+                    }
+                    if (value instanceof String) {
+                        return "'" + value + "'";
+                    }
+                    return value.toString();
+                })
                 .toArray(String[]::new);
         sql = "UPDATE " + table.toString() + " SET "+
                 String.join(", ", IntStream.range(0, columns.length).mapToObj(i -> columns[i]+" = "+valueStrings[i])
